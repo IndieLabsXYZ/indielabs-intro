@@ -41,28 +41,19 @@ function html() {
     .pipe(dest('dist'));
 }
 
-// Optimize Offline HTML
-// function offlineHtml() {
-//  return src('src/offline/**/*.html', { allowEmpty: true })
-//    .pipe(plumber())
-//    .pipe(htmlmin({ collapseWhitespace: true, removeComments: true }))
-//    .pipe(dest('dist/offline'));
-// }
-
 // Optimize CSS
 function css() {
   return src('src/**/*.css', { allowEmpty: true })
     .pipe(plumber())
-    .pipe(gulpIf(hasFiles('src/**/*.css'), autoprefixer({ cascade: false })))
-    .pipe(gulpIf(hasFiles('src/**/*.css'), cleanCSS()))
+    .pipe(gulpIf(hasFiles('src/css/*.css'), autoprefixer({ cascade: false })))
+    .pipe(gulpIf(hasFiles('src/css/*.css'), cleanCSS()))
     .pipe(dest('dist'));
 }
 
 // Optimize JS
 function js() {
-  return src('src/**/*.js', { allowEmpty: true })
+  return src('src/js/*.js', { allowEmpty: true })
     .pipe(plumber())
-    .pipe(concat('main.js'))
     .pipe(uglify())
     .pipe(dest('dist/js'));
 }
@@ -91,10 +82,8 @@ function copy() {
 async function serviceWorker() {
   return workboxBuild.generateSW({
     globDirectory: 'dist',
-    globPatterns: ['**/*.{html,js,css,png,jpg,gif,svg,json,ico,woff,woff2}'],
+    globPatterns: ['**/*.{html,js,css,png,jpg,gif,svg,json,ico,woff,woff2,frag,vert,mp3}'],
     swDest: 'dist/sw.js',
-//    navigateFallback: '/offline/offline.html',
-//    navigateFallbackDenylist: [/^\/api\//],
     runtimeCaching: [{
       urlPattern: /\.(?:html|js|css|png|jpg|gif|svg|json|ico|woff|woff2|vert|frag|mp3)$/,
       handler: 'CacheFirst',
@@ -112,9 +101,8 @@ async function serviceWorker() {
 // Watch for changes during development
 function watchFiles() {
   watch('src/**/*.html', html);
-  // watch('src/offline/**/*.html', offlineHtml);
-  watch('src/**/*.css', css);
-  watch('src/**/*.js', js);
+  watch('src/css/*.css', css);
+  watch('src/js/*.js', js);
   watch('src/**/*.{jpg,png,gif,svg}', images);
   watch('src/**/*.{json,ico,woff,woff2}', copy);
 }
